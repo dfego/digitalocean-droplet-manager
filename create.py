@@ -2,21 +2,9 @@
 
 import digitalocean
 import sys
-
-DROPLET_NAME = 'Mumble'
-DROPLET_REGION = 'nyc3'
-DROPLET_SIZE = '512mb'
-#IMAGE_NAME = r'Murmur w/ Dynamic DNS'
-IMAGE_NAME = r'Murmur Installed and Configured'
-
-DOMAIN='mumble.danfego.net'
+import ConfigParser
 
 # Available droplets
-def list_droplets():
-    my_droplets = manager.get_all_droplets()
-    for droplet in my_droplets:
-        print droplet
-
 def get_droplet_by_name(name):
     my_droplets = manager.get_all_droplets()
     for droplet in my_droplets:
@@ -24,12 +12,6 @@ def get_droplet_by_name(name):
             return droplet
 
     return None
-
-def list_images():
-    my_images = manager.get_my_images()
-    for image in my_images:
-        if image.name == IMAGE_NAME:
-            print image
 
 def get_image_by_name(name):
     my_images = manager.get_my_images()
@@ -40,10 +22,21 @@ def get_image_by_name(name):
     return None
 
 if __name__ == '__main__':
-    # Create manager
-    manager = digitalocean.Manager(token=TOKEN)
+    # Read config file
+    config = ConfigParser.SafeConfigParser()
+    config.read('do.cfg')
 
-    # TODO argparse
+    #  Parse out values
+    token = config.get('misc', 'token')
+    droplet_name = config.get('droplet', 'name')
+    droplet_region = config.get('droplet', 'region')
+    droplet_size_slug = config.get('droplet', 'size_slug')
+    image_name = config.get('droplet', 'image_name')
+    domain_name = config.get('domain', 'name')
+
+    # Create manager
+    manager = digitalocean.Manager(token=token)
+
     # Workflow:
     # 1. If droplet exists, exit (for now)
     # 2. Get image
@@ -51,23 +44,22 @@ if __name__ == '__main__':
     # 4. Setup DNS?
 
     # Don't continue if we've already got droplet created
-    if get_droplet_by_name(DROPLET_NAME):
-        print 'Droplet exists: {}'.format(DROPLET_NAME)
+    if get_droplet_by_name(droplet_name):
+        print 'Droplet exists: {}'.format(droplet_name)
         sys.exit(0) 
 
     # Get image
-    image = get_image_by_name(IMAGE_NAME)
-    print image.id
+    image = get_image_by_name(image_name)
 
     # For now, just get all SSH keys
     ssh_keys = manager.get_all_sshkeys()
 
     # Create droplet with image and ssh key
-    droplet = digitalocean.Droplet(token=TOKEN,
-            name=DROPLET_NAME,
-            region=DROPLET_REGION,
+    droplet = digitalocean.Droplet(token=token,
+            name=droplet_name,
+            region=droplet_region,
             image=image.id,
-            size_slug=DROPLET_SIZE,
+            size_slug=droplet_size_slug,
             ssh_keys=ssh_keys)
     droplet.create()
 
@@ -84,8 +76,8 @@ if __name__ == '__main__':
     # Now get and upate the DNS record -- assumes a single A record
     domains = manager.get_all_domains()
     for domain in domains:
-        if domain.name == DOMAIN:
+        if domain.name == domain_name:
             record = domain.create_new_domain_record(type='A', name='@',
                     data=droplet.ip_address)
 
-    print 'Setup of {} complete! IP address: {}'.format(DOMAIN, droplet.ip_address)
+    print 'Setup of {} complete! IP address: {}'.format(domain_name, droplet.ip_address)
