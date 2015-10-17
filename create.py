@@ -5,7 +5,7 @@ import sys
 import ConfigParser
 
 # Available droplets
-def get_droplet_by_name(name):
+def get_droplet_by_name(manager, name):
     my_droplets = manager.get_all_droplets()
     for droplet in my_droplets:
         if droplet.name == name:
@@ -13,13 +13,23 @@ def get_droplet_by_name(name):
 
     return None
 
-def get_image_by_name(name):
+def get_image_by_name(manager, name):
     my_images = manager.get_my_images()
     for image in my_images:
         if image.name == name:
             return image
 
     return None
+
+def get_ssh_keylist_by_name(manager, name):
+    """ Return a size 0 or 1 ssh key list by name """
+    all_ssh_keys = manager.get_all_sshkeys()
+    ssh_keys = []
+    for key in all_ssh_keys:
+        if key.name == name:
+            ssh_keys.append(key)
+
+    return ssh_keys
 
 if __name__ == '__main__':
     # Read config file
@@ -39,19 +49,15 @@ if __name__ == '__main__':
     manager = digitalocean.Manager(token=token)
 
     # Don't continue if we've already got droplet created
-    if get_droplet_by_name(droplet_name):
+    if get_droplet_by_name(manager, droplet_name):
         print 'Droplet already exists: {}'.format(droplet_name)
         sys.exit(0) 
 
     # Get image to create droplet from
-    image = get_image_by_name(image_name)
+    image = get_image_by_name(manager, image_name)
 
-    # For now, just get all SSH keys and copy them on
-    all_ssh_keys = manager.get_all_sshkeys()
-    ssh_keys = []
-    for key in all_ssh_keys:
-        if key.name == ssh_key_name:
-            ssh_keys.append(key)
+    # Fetch the ssh key
+    ssh_keys = get_ssh_keylist_by_name(manager, ssh_key_name)
 
     # Create droplet with image and ssh key
     droplet = digitalocean.Droplet(token=token,
@@ -62,13 +68,13 @@ if __name__ == '__main__':
             ssh_keys=ssh_keys)
     droplet.create()
 
-    # Should probably only see one?
+    # Only expecting to see a single action, but loop anyway...
     actions = droplet.get_actions()
     for action in actions:
         action.wait()
         print 'Action {} is {}'.format(action.type, action.status)
 
-    # Now get the IP address...
+    # Now get the IP address
     droplet.load()
     print 'IP address: {}'.format(droplet.ip_address)
 
