@@ -3,7 +3,7 @@
 import digitalocean
 import sys
 
-DROPLET_NAME = 'Murmur'
+DROPLET_NAME = 'Mumble'
 DROPLET_REGION = 'nyc3'
 DROPLET_SIZE = '512mb'
 #IMAGE_NAME = r'Murmur w/ Dynamic DNS'
