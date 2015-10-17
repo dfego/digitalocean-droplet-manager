@@ -33,26 +33,25 @@ if __name__ == '__main__':
     droplet_size_slug = config.get('droplet', 'size_slug')
     image_name = config.get('droplet', 'image_name')
     domain_name = config.get('domain', 'name')
+    ssh_key_name = config.get('ssh', 'key_name')
 
     # Create manager
     manager = digitalocean.Manager(token=token)
 
-    # Workflow:
-    # 1. If droplet exists, exit (for now)
-    # 2. Get image
-    # 3. Create droplet with image and ssh key
-    # 4. Setup DNS?
-
     # Don't continue if we've already got droplet created
     if get_droplet_by_name(droplet_name):
-        print 'Droplet exists: {}'.format(droplet_name)
+        print 'Droplet already exists: {}'.format(droplet_name)
         sys.exit(0) 
 
-    # Get image
+    # Get image to create droplet from
     image = get_image_by_name(image_name)
 
-    # For now, just get all SSH keys
-    ssh_keys = manager.get_all_sshkeys()
+    # For now, just get all SSH keys and copy them on
+    all_ssh_keys = manager.get_all_sshkeys()
+    ssh_keys = []
+    for key in all_ssh_keys:
+        if key.name == ssh_key_name:
+            ssh_keys.append(key)
 
     # Create droplet with image and ssh key
     droplet = digitalocean.Droplet(token=token,
