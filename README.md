@@ -1,17 +1,21 @@
 ## Synopsis
 
 digitalocean-droplet-manager is a Python command-line interface for automated
-creation an ddestruction of DigitalOcean droplets.
+creation and destruction of DigitalOcean droplets.
 
 ## Code Example
 
-Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
+Show what the library does as concisely as possible, developers should be able
+to figure out **how** your project solves their problem by looking at the code
+example. Make sure the API you are showing off is obvious, and that your code
+is short and concise.
 
 (TODO)
 
 ## Motivation
 
-A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
+A short description of the motivation behind the creation and maintenance of
+the project. This should explain **why** the project exists.
 
 (TODO)
 
