@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import digitalocean
 import sys
 import ConfigParser
@@ -32,9 +33,17 @@ def get_ssh_keylist_by_name(manager, name):
     return ssh_keys
 
 if __name__ == '__main__':
+    # Use argparse, even though just getting on arg for now
+    parser = argparse.ArgumentParser()
+    parser.add_argument('config_file', help='configuration file to use')
+    args = parser.parse_args()
+
     # Read config file
     config = ConfigParser.SafeConfigParser()
-    config.read('do.cfg')
+    files_read = config.read(args.config_file)
+    if not files_read:
+        print 'Configuration file cannot be read. Exiting.'
+        sys.exit(1)
 
     #  Parse out values
     token = config.get('misc', 'token')
