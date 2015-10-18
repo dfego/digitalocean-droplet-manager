@@ -1,2 +1,4 @@
 .*.sw*
 *.pyc
+*.cfg
+!sample.cfg
