@@ -3,6 +3,7 @@
 import argparse
 import digitalocean
 import helper
+import sys
 
 from configuration import Configuration
 
@@ -48,6 +49,7 @@ if __name__ == '__main__':
 
     # Read config file
     config = Configuration()
-    config.read_config(args.config_file)
+    if not config.read_config(args.config_file):
+        sys.exit(1)
 
     destroy(config)

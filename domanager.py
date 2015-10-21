@@ -11,15 +11,21 @@ from destroy import destroy
 def do_create(args):
     """Create a droplet based on configuration"""
     config = Configuration()
-    config.read_config(args.config_file)
+    if not config.read_config(args.config_file):
+        return False
+
     create(config)
+    return True
 
 
 def do_destroy(args):
     """Destroy a droplet based on configuration"""
     config = Configuration()
-    config.read_config(args.config_file)
+    if not config.read_config(args.config_file):
+        return False
+
     destroy(config)
+    return True
 
 
 def main(args):
