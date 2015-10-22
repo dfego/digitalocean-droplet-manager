@@ -8,6 +8,14 @@ import sys
 from configuration import Configuration
 
 
+def _update_domain(manager, domain_name, ip_address):
+    """Update a domain entry with a new A record IP address"""
+    domains = manager.get_all_domains()
+    for domain in domains:
+        if domain.name == domain_name:
+            record = domain.create_new_domain_record(type='A', name='@',
+                                                     data=ip_address)
+
 def create(config):
     """Create a droplet based on the configuration given"""
 
@@ -45,12 +53,8 @@ def create(config):
     print 'IP address: {}'.format(droplet.ip_address)
 
     # Now get and upate the DNS record -- assumes a single A record
-    # TODO create domain if it doesn't exist
-    domains = manager.get_all_domains()
-    for domain in domains:
-        if domain.name == config.domain_name:
-            record = domain.create_new_domain_record(type='A', name='@',
-                                                     data=droplet.ip_address)
+    # TODO create domain if it doesn't exist and move this to a function
+    _update_domain(manager, config.domain_name, droplet.ip_address)
 
     print 'Setup of {} complete! IP address: {}'.format(config.domain_name,
                                                         droplet.ip_address)
